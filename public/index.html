@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>T2.beta</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<div id="login-screen" style="position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;">
+  <div class="login-page">
+
+    <div class="login-hero">
+      <div class="login-hero-logo anim-fade-in">T2<span>.beta</span></div>
+      <h1 class="login-hero-title anim-fade-in delay-1">Планирование<br>графика по<br>другим правилам</h1>
+      <p class="login-hero-text anim-fade-in delay-2">
+        Сотрудники формируют расписание на 2 недели вперёд.
+        Руководители видят нагрузку, отклонения и подтверждают план/факт.
+      </p>
+      <div style="display:flex;gap:12px;margin-top:40px;" class="anim-fade-in delay-3">
+        <span class="badge badge-success"><span class="badge-dot" style="background:var(--success)"></span>Система активна</span>
+        <span class="badge badge-neutral">v1.0.0</span>
+      </div>
+      <div style="margin-top:48px;display:flex;flex-direction:column;gap:14px;">
+        <div class="flex items-center gap-12 anim-fade-in delay-3">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:16px;">📅</div>
+          <div><div style="font-size:13px;font-weight:600;">Индивидуальный график</div><div class="t-small">Смены на 2 недели вперёд</div></div>
+        </div>
+        <div class="flex items-center gap-12 anim-fade-in delay-4">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:16px;">📊</div>
+          <div><div style="font-size:13px;font-weight:600;">Аналитика нагрузки</div><div class="t-small">Тепловая карта команды</div></div>
+        </div>
+        <div class="flex items-center gap-12 anim-fade-in delay-5">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:16px;">📤</div>
+          <div><div style="font-size:13px;font-weight:600;">Экспорт отчётов</div><div class="t-small">CSV, JSON, выгрузка по периодам</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-form-wrap anim-slide-up">
+      <div class="login-form-title">Добро пожаловать</div>
+      <div class="login-form-sub">Войдите, чтобы продолжить</div>
+
+      <div class="role-selector">
+        <div class="role-btn active" onclick="selectRole(this,'employee')">👤 Сотрудник</div>
+        <div class="role-btn" onclick="selectRole(this,'manager')">👔 Руководитель</div>
+        <div class="role-btn" onclick="selectRole(this,'admin')">⚙️ Администратор</div>
+      </div>
+
+      <form class="login-form" onsubmit="doLogin(event)">
+        <div class="form-group">
+          <label class="form-label required">Логин</label>
+          <div class="input-icon-wrap">
+            <span class="icon">✉</span>
+            <input class="input" id="li" type="text" placeholder="email@t2.ru"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label required">Пароль</label>
+          <div class="input-icon-wrap">
+            <span class="icon">🔒</span>
+            <input class="input" id="lp" type="password" placeholder="••••••••"/>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg btn-full" id="login-btn">Войти в систему</button>
+        <div id="login-err" style="font-size:13px;color:var(--danger);text-align:center;display:none;"></div>
+      </form>
+
+      <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--border-soft);">
+        <div class="t-micro mb-12">Быстрый вход (демо)</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:10px;" onclick="quickLogin('ivanov@t2.ru','employee123')">👤 Сотрудник — Иванов И.</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:10px;" onclick="quickLogin('petrova@t2.ru','manager123')">👔 Руководитель — Петрова М.</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:10px;" onclick="quickLogin('admin@t2.ru','admin123')">⚙️ Администратор</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none;">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark">T</div>
+      <div class="sidebar-logo-text">T2<span>.beta</span></div>
+    </div>
+
+    <div id="menu-employee" style="display:none;flex:1;">
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Основное</div>
+        <div class="sidebar-item active" onclick="nav('my-schedule',this)"><span class="sidebar-item-icon">📅</span>Мой график</div>
+        <div class="sidebar-item" onclick="nav('my-shifts',this)"><span class="sidebar-item-icon">🕐</span>Мои смены</div>
+        <div class="sidebar-item" onclick="nav('notifications',this)">
+          <span class="sidebar-item-icon">🔔</span>Уведомления
+          <span class="sidebar-item-badge" id="notif-badge-emp" style="display:none;">0</span>
+        </div>
+        <div class="sidebar-item" onclick="nav('reports',this)"><span class="sidebar-item-icon">📤</span>Отчёты</div>
+      </div>
+    </div>
+
+    <div id="menu-manager" style="display:none;flex:1;">
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Управление</div>
+        <div class="sidebar-item active" onclick="nav('team-schedule',this)"><span class="sidebar-item-icon">👥</span>График команды</div>
+        <div class="sidebar-item" onclick="nav('plan-fact',this)"><span class="sidebar-item-icon">📊</span>План / Факт</div>
+        <div class="sidebar-item" onclick="nav('workload',this)"><span class="sidebar-item-icon">📈</span>Нагрузка</div>
+        <div class="sidebar-item" onclick="nav('reports',this)"><span class="sidebar-item-icon">📤</span>Отчёты</div>
+        <div class="sidebar-item" onclick="nav('notifications',this)">
+          <span class="sidebar-item-icon">🔔</span>Уведомления
+          <span class="sidebar-item-badge" id="notif-badge-mgr" style="display:none;">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="menu-admin" style="display:none;flex:1;">
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Администрирование</div>
+        <div class="sidebar-item active" onclick="nav('admin-users',this)"><span class="sidebar-item-icon">👤</span>Сотрудники</div>
+        <div class="sidebar-item" onclick="nav('admin-orgs',this)"><span class="sidebar-item-icon">🏢</span>Организации</div>
+        <div class="sidebar-item" onclick="nav('admin-roles',this)"><span class="sidebar-item-icon">🛡</span>Роли</div>
+        <div class="sidebar-item" onclick="nav('reports',this)"><span class="sidebar-item-icon">📤</span>Отчёты</div>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-item" onclick="nav('profile',this)"><span class="sidebar-item-icon">⚙️</span>Профиль</div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sb-avatar">??</div>
+        <div>
+          <div class="sidebar-user-name" id="sb-name">—</div>
+          <div class="sidebar-user-role" id="sb-role">—</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;color:var(--danger);" onclick="doLogout()">Выйти</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <header class="topbar">
+      <div>
+        <div class="topbar-title" id="tb-title">—</div>
+        <div class="topbar-subtitle" id="tb-sub">—</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="period-switcher" id="period-sw">
+          <button class="period-btn" onclick="changePeriod(-1)">‹</button>
+          <div class="period-label" id="period-lbl">14 апр — 27 апр</div>
+          <button class="period-btn" onclick="changePeriod(1)">›</button>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btn-draft" onclick="saveDraft()" style="display:none;">Черновик</button>
+        <button class="btn btn-primary btn-sm" id="btn-save" onclick="saveSchedule()" style="display:none;">Сохранить</button>
+      </div>
+    </header>
+
+    <div class="page">
+
+      <section id="page-my-schedule" class="page-section active anim-fade-in">
+        <div class="grid grid-4 gap-16 mb-24" id="emp-kpi"></div>
+        <div class="card mb-20">
+          <div class="flex items-center justify-between mb-16">
+            <div><div class="card-title">Быстрый выбор смены</div><div class="card-subtitle">Нажмите на день — выберите тип</div></div>
+            <span class="badge badge-accent" id="selected-day-badge">День не выбран</span>
+          </div>
+          <div class="quick-shifts">
+            <button class="quick-shift-btn active" onclick="qshift(this,'standard','09:00','18:00')">☀️ Утро 09–18</button>
+            <button class="quick-shift-btn" onclick="qshift(this,'standard','10:00','19:00')">🌤 День 10–19</button>
+            <button class="quick-shift-btn" onclick="qshift(this,'evening','12:00','21:00')">🌆 Вечер 12–21</button>
+            <button class="quick-shift-btn" onclick="qshift(this,'night','21:00','06:00')">🌙 Ночь 21–06</button>
+            <button class="quick-shift-btn" onclick="qshift(this,'off',null,null)">🏖 Выходной</button>
+            <button class="quick-shift-btn" onclick="qshift(this,'vacation',null,null)">✈️ Отпуск</button>
+            <button class="quick-shift-btn" onclick="qshift(this,'sick',null,null)">🏥 Больничный</button>
+            <button class="quick-shift-btn" onclick="openDayModal()">✏️ Своё время</button>
+          </div>
+        </div>
+        <div id="my-weeks"></div>
+        <div class="flex gap-12 justify-end mt-20">
+          <button class="btn btn-secondary" onclick="saveDraft()">💾 Черновик</button>
+          <button class="btn btn-primary" onclick="submitSchedule()">📨 Отправить на согласование</button>
+        </div>
+      </section>
+
+      <section id="page-my-shifts" class="page-section anim-fade-in">
+        <div class="card mb-20">
+          <div class="card-header">
+            <div><div class="card-title">Мои смены</div><div class="card-subtitle">История и предстоящие</div></div>
+            <div class="tabs">
+              <div class="tab active" onclick="switchTab(this)">Предстоящие</div>
+              <div class="tab" onclick="switchTab(this)">История</div>
+            </div>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Дата</th><th>День</th><th>Начало</th><th>Конец</th><th>Часы</th><th>Тип</th><th>Статус</th><th>Действие</th></tr></thead>
+            <tbody id="my-shifts-tbody"></tbody>
+          </table></div>
+        </div>
+        <div class="grid grid-3 gap-16" id="my-shifts-kpi"></div>
+      </section>
+
+      <section id="page-team-schedule" class="page-section anim-fade-in">
+        <div class="grid grid-4 gap-16 mb-24" id="team-kpi"></div>
+        <div class="filter-bar mb-20">
+          <div class="search-wrap"><span class="search-icon">🔍</span><input class="input" id="team-search" placeholder="Поиск сотрудника..." oninput="filterTeamTable()"/></div>
+          <select class="select" style="width:180px;" id="team-dept-filter" onchange="filterTeamTable()">
+            <option value="">Все отделы</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" onclick="apiExportCSV({from:periodFrom,to:periodTo}).then(()=>toast('Экспорт','CSV скачан','success'))">📥 CSV</button>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Команда</div>
+            <button class="btn btn-success btn-sm" onclick="confirmAllShifts()">✅ Подтвердить всех</button>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Сотрудник</th><th>Отдел</th><th>Смен</th><th>Часов</th><th>Статус</th><th>Нагрузка</th><th>Действие</th></tr></thead>
+            <tbody id="team-tbody"></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <section id="page-workload" class="page-section anim-fade-in">
+        <div class="card mb-20">
+          <div class="card-header">
+            <div class="card-title">Тепловая карта нагрузки</div>
+            <div class="flex gap-10 items-center flex-wrap">
+              <div class="flex gap-6 items-center"><div style="width:12px;height:12px;border-radius:3px;background:var(--border)"></div><span class="t-small">Нет</span></div>
+              <div class="flex gap-6 items-center"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,46,136,.4)"></div><span class="t-small">Запланировано</span></div>
+              <div class="flex gap-6 items-center"><div style="width:12px;height:12px;border-radius:3px;background:var(--success)"></div><span class="t-small">Подтверждено</span></div>
+              <div class="flex gap-6 items-center"><div style="width:12px;height:12px;border-radius:3px;background:var(--danger)"></div><span class="t-small">Отклонено</span></div>
+            </div>
+          </div>
+          <div style="overflow-x:auto;"><table class="heatmap-table" id="heatmap-table"></table></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Суммарная нагрузка</div><span class="badge badge-neutral">Норма: 80 ч</span></div>
+          <div id="workload-bars" style="display:flex;flex-direction:column;gap:14px;"></div>
+        </div>
+      </section>
+
+      <section id="page-plan-fact" class="page-section anim-fade-in">
+        <div class="grid grid-4 gap-16 mb-24" id="pf-kpi"></div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Детализация план / факт</div>
+            <div class="flex gap-10">
+              <button class="btn btn-secondary btn-sm" onclick="apiExportCSV({from:periodFrom,to:periodTo}).then(()=>toast('Экспорт','CSV скачан','success'))">📥 CSV</button>
+            </div>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Дата</th><th>Сотрудник</th><th>Отдел</th><th>План нач.</th><th>План кон.</th><th>Факт нач.</th><th>Факт кон.</th><th>Разница</th><th>Статус</th></tr></thead>
+            <tbody id="pf-tbody"></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <section id="page-notifications" class="page-section anim-fade-in">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Уведомления</div>
+            <button class="btn btn-ghost btn-sm" onclick="readAllNotifs()">Отметить все прочитанными</button>
+          </div>
+          <div id="notif-list"></div>
+        </div>
+      </section>
+
+      <section id="page-reports" class="page-section anim-fade-in">
+        <div class="card mb-20">
+          <div class="card-title mb-16">Параметры выгрузки</div>
+          <div class="grid grid-3 gap-16">
+            <div class="form-group"><label class="form-label">Отдел</label>
+              <select class="select" id="rep-dept"><option value="">Все</option></select></div>
+            <div class="form-group"><label class="form-label">Дата с</label>
+              <input class="input" type="date" id="rep-from"/></div>
+            <div class="form-group"><label class="form-label">Дата по</label>
+              <input class="input" type="date" id="rep-to"/></div>
+          </div>
+          <div class="flex gap-10 mt-16 justify-end">
+            <button class="btn btn-primary" onclick="loadReportPreview()">Сформировать</button>
+          </div>
+        </div>
+        <div class="grid gap-14 mb-24" style="grid-template-columns:repeat(4,1fr);">
+          <div class="export-card" onclick="doExportCSV()">
+            <div class="export-card-icon" style="background:var(--success-soft);">📗</div>
+            <div><div style="font-size:14px;font-weight:700;">CSV / Excel</div><div class="t-small">Таблица смен</div></div>
+          </div>
+          <div class="export-card" onclick="apiExportJSON().then(()=>toast('Готово','JSON скачан','success'))">
+            <div class="export-card-icon" style="background:var(--info-soft);">📄</div>
+            <div><div style="font-size:14px;font-weight:700;">JSON</div><div class="t-small">Полная база (admin)</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Предпросмотр</div><span class="badge badge-neutral" id="rep-count">0 записей</span></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Дата</th><th>Сотрудник</th><th>Отдел</th><th>Нач. план</th><th>Кон. план</th><th>Нач. факт</th><th>Кон. факт</th><th>Часы</th><th>Статус</th></tr></thead>
+            <tbody id="rep-tbody"></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <section id="page-admin-users" class="page-section anim-fade-in">
+        <div class="flex items-center justify-between mb-20">
+          <div><div class="t-h3">Сотрудники</div><div class="t-small mt-4">Управление аккаунтами</div></div>
+          <div class="flex gap-10">
+            <button class="btn btn-secondary btn-sm" onclick="apiExportJSON().then(()=>toast('Готово','JSON скачан','success'))">📥 JSON</button>
+            <button class="btn btn-primary btn-sm" onclick="openUserSlide()">+ Добавить</button>
+          </div>
+        </div>
+        <div class="filter-bar mb-16">
+          <div class="search-wrap"><span class="search-icon">🔍</span><input class="input" id="usr-search" placeholder="Поиск..." oninput="filterUsersTable()"/></div>
+          <select class="select" style="width:160px;" id="usr-role-filter" onchange="filterUsersTable()">
+            <option value="">Все роли</option>
+            <option value="admin">Администратор</option>
+            <option value="manager">Руководитель</option>
+            <option value="employee">Сотрудник</option>
+          </select>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table>
+            <thead><tr><th>Сотрудник</th><th>Логин</th><th>Роль</th><th>Отдел</th><th>Создан</th><th>Статус</th><th>Действие</th></tr></thead>
+            <tbody id="users-tbody"></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <section id="page-admin-orgs" class="page-section anim-fade-in">
+        <div class="flex items-center justify-between mb-20">
+          <div><div class="t-h3">Организации и команды</div><div class="t-small mt-4">Вложенная структура</div></div>
+          <button class="btn btn-primary btn-sm" onclick="openOrgSlide()">+ Добавить</button>
+        </div>
+        <div class="card"><div class="table-wrap"><table>
+          <thead><tr><th>Название</th><th>Тип</th><th>Сотрудников</th><th>Действие</th></tr></thead>
+          <tbody id="orgs-tbody"></tbody>
+        </table></div></div>
+      </section>
+
+      <section id="page-admin-roles" class="page-section anim-fade-in">
+        <div class="t-h3 mb-20">Роли и доступ</div>
+        <div class="grid grid-3 gap-16">
+          <div class="card card-clickable">
+            <div class="flex items-center justify-between mb-12"><span style="font-size:24px;">⚙️</span><span class="badge badge-danger">Администратор</span></div>
+            <div class="t-h4 mb-8">Администратор</div>
+            <div class="t-body" style="font-size:13px;">Полный доступ ко всем функциям системы.</div>
+            <div class="divider"></div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="flex items-center gap-8"><span style="color:var(--success)">✓</span><span class="t-small">Управление организациями</span></div>
+              <div class="flex items-center gap-8"><span style="color:var(--success)">✓</span><span class="t-small">Управление пользователями</span></div>
+              <div class="flex items-center gap-8"><span style="color:var(--success)">✓</span><span class="t-small">Все отчёты и выгрузки</span></div>
+              <div class="flex items-center gap-8"><span style="color:var(--success)">✓</span><span class="t-small">Настройки системы</span></div>
+            </div>
+          </div>
+          <div class="card card-clickable">
+            <div class="flex items-center justify-between mb-12"><span style="font-size:24px;">👔</span><span class="badge badge-warning">Руководитель</span></div>
+            <div class="t-h4 mb-8">Руководитель</div>
+            <div class="t-body" style="font-size:13px;">Просмотр и подтверждение графиков подразделения.</div>
+            <div class="divider"></div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="flex items-center gap-8"><span style="color:var(--success)">✓</span><span class="t-small">График команды</span></div>
+              <div class="flex items-center gap-8"><span style="color:var(--success)">✓</span><span class="t-small">Подтверждение смен</span></div>
+              <div class="flex items-center gap-8"><span style="color:var(--success)">✓</span><span class="t-small">Отчёты подразделения</span></div>
+              <div class="flex items-center gap-8"><span style="color:var(--danger)">✗</span><span class="t-small">Управление организациями</span></div>
+            </div>
+          </div>
+          <div class="card card-clickable">
+            <div class="flex items-center justify-between mb-12"><span style="font-size:24px;">👤</span><span class="badge badge-neutral">Сотрудник</span></div>
+            <div class="t-h4 mb-8">Сотрудник</div>
+            <div class="t-body" style="font-size:13px;">Личный график на 2 недели. Свои смены и уведомления.</div>
+            <div class="divider"></div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="flex items-center gap-8"><span style="color:var(--success)">✓</span><span class="t-small">Личный график</span></div>
+              <div class="flex items-center gap-8"><span style="color:var(--success)">✓</span><span class="t-small">История смен</span></div>
+              <div class="flex items-center gap-8"><span style="color:var(--danger)">✗</span><span class="t-small">График команды</span></div>
+              <div class="flex items-center gap-8"><span style="color:var(--danger)">✗</span><span class="t-small">Управление пользователями</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-profile" class="page-section anim-fade-in">
+        <div class="grid grid-3 gap-20">
+          <div class="card card-lg col-span-2">
+            <div class="t-h3 mb-20">Личные данные</div>
+            <div class="grid grid-2 gap-16">
+              <div class="form-group"><label class="form-label">Имя</label><input class="input" id="prof-name"/></div>
+              <div class="form-group"><label class="form-label">Логин</label><input class="input" id="prof-login" readonly/></div>
+              <div class="form-group"><label class="form-label">Отдел</label><input class="input" id="prof-dept" readonly/></div>
+              <div class="form-group"><label class="form-label">Роль</label><input class="input" id="prof-role" readonly/></div>
+            </div>
+            <div class="flex gap-10 mt-20">
+              <button class="btn btn-primary" onclick="saveProfile()">Сохранить</button>
+            </div>
+            <div class="divider"></div>
+            <div class="t-h4 mb-16">Сменить пароль</div>
+            <div class="grid grid-3 gap-16">
+              <div class="form-group"><label class="form-label">Текущий пароль</label><input class="input" type="password" id="pw-old"/></div>
+              <div class="form-group"><label class="form-label">Новый пароль</label><input class="input" type="password" id="pw-new"/></div>
+              <div class="form-group"><label class="form-label">&nbsp;</label><button class="btn btn-secondary btn-full" onclick="changePass()">Изменить</button></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card" style="text-align:center;padding:28px;">
+              <div id="prof-avatar" style="width:80px;height:80px;border-radius:50%;background:var(--accent-soft);border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:var(--accent);margin:0 auto 12px;">??</div>
+              <div style="font-size:18px;font-weight:700;" id="prof-display-name">—</div>
+              <div class="t-small mt-4" id="prof-display-role">—</div>
+            </div>
+            <div class="card">
+              <div class="card-title mb-12">Уведомления</div>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div class="flex items-center justify-between">
+                  <span style="font-size:13px;color:var(--text-soft)">Email</span>
+                  <div class="toggle"><input type="checkbox" id="t-email" checked/><div class="toggle-track" onclick="document.getElementById('t-email').click()"></div></div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span style="font-size:13px;color:var(--text-soft)">Push</span>
+                  <div class="toggle"><input type="checkbox" id="t-push" checked/><div class="toggle-track" onclick="document.getElementById('t-push').click()"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="day-overlay" onclick="closeDayModal(event)">
+  <div class="modal anim-scale-in" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div><div class="modal-title" id="day-modal-title">Смена</div><div class="t-small">Выберите тип и время</div></div>
+      <button class="modal-close" onclick="closeDayModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Тип смены</label>
+        <div class="quick-shifts" id="modal-types">
+          <button class="quick-shift-btn active" onclick="mtype(this,'standard','09:00','18:00')">☀️ Стандарт</button>
+          <button class="quick-shift-btn" onclick="mtype(this,'evening','12:00','21:00')">🌆 Вечер</button>
+          <button class="quick-shift-btn" onclick="mtype(this,'night','21:00','06:00')">🌙 Ночь</button>
+          <button class="quick-shift-btn" onclick="mtype(this,'off',null,null)">🏖 Выходной</button>
+          <button class="quick-shift-btn" onclick="mtype(this,'vacation',null,null)">✈️ Отпуск</button>
+          <button class="quick-shift-btn" onclick="mtype(this,'sick',null,null)">🏥 Больничный</button>
+        </div>
+      </div>
+      <div id="modal-time-row" class="form-group">
+        <label class="form-label">Время</label>
+        <div class="time-pair">
+          <div class="form-group"><label class="form-label">Начало</label><input class="input" type="time" id="ms" value="09:00" oninput="calcDur()"/></div>
+          <div class="time-pair-sep">–</div>
+          <div class="form-group"><label class="form-label">Конец</label><input class="input" type="time" id="me" value="18:00" oninput="calcDur()"/></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Комментарий</label>
+        <textarea class="textarea" id="mc" placeholder="Необязательно..." rows="2"></textarea>
+      </div>
+      <div style="background:var(--accent-soft-2);border:1px solid var(--accent-soft);border-radius:var(--radius-md);padding:12px 16px;">
+        <div class="t-small">Длительность</div>
+        <div style="font-size:22px;font-weight:800;color:var(--accent);" id="mdur">9 часов</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" onclick="clearShift()">🗑 Удалить</button>
+      <button class="btn btn-secondary" onclick="closeDayModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveDayShift()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="user-overlay" onclick="closeUserSlide(event)" style="justify-content:flex-end;padding:0;align-items:stretch;">
+  <div class="slideover open" id="user-slide" onclick="event.stopPropagation()" style="transform:translateX(100%);">
+    <div class="slideover-header">
+      <div class="slideover-title">Добавить сотрудника</div>
+      <button class="modal-close" onclick="closeUserSlide()">✕</button>
+    </div>
+    <div class="slideover-body">
+      <div class="form-group"><label class="form-label required">ФИО</label><input class="input" id="nu-name" placeholder="Иванов Иван Иванович" oninput="previewUser()"/></div>
+      <div class="form-group"><label class="form-label required">Логин (Email)</label><input class="input" id="nu-login" type="email" placeholder="ivanov@t2.ru"/></div>
+      <div class="form-group"><label class="form-label required">Пароль</label><input class="input" id="nu-pass" type="password" placeholder="Минимум 6 символов"/></div>
+      <div class="form-group"><label class="form-label">Роль</label>
+        <select class="select" id="nu-role" onchange="previewUser()">
+          <option value="employee">Сотрудник</option>
+          <option value="manager">Руководитель</option>
+          <option value="admin">Администратор</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Отдел</label>
+        <select class="select" id="nu-dept" onchange="previewUser()"></select>
+      </div>
+      <div class="form-group"><label class="form-label">Организация</label>
+        <select class="select" id="nu-org"></select>
+      </div>
+      <div id="nu-preview" style="display:none;background:var(--accent-soft-2);border:1px solid var(--accent-soft);border-radius:var(--radius-md);padding:14px;">
+        <div class="t-micro mb-8">Предпросмотр</div>
+        <div class="flex items-center gap-10">
+          <div id="nup-av" style="width:40px;height:40px;border-radius:50%;background:var(--accent-soft);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:14px;">??</div>
+          <div><div style="font-weight:600;" id="nup-name">—</div><div class="t-small" id="nup-role">—</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="slideover-footer">
+      <button class="btn btn-secondary btn-full" onclick="closeUserSlide()">Отмена</button>
+      <button class="btn btn-primary btn-full" onclick="submitUser()">✅ Создать</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="org-overlay" onclick="closeOrgSlide(event)" style="justify-content:flex-end;padding:0;align-items:stretch;">
+  <div class="slideover open" id="org-slide" onclick="event.stopPropagation()" style="transform:translateX(100%);">
+    <div class="slideover-header">
+      <div class="slideover-title">Добавить организацию</div>
+      <button class="modal-close" onclick="closeOrgSlide()">✕</button>
+    </div>
+    <div class="slideover-body">
+      <div class="form-group"><label class="form-label required">Название</label><input class="input" id="no-name" placeholder="Название отдела"/></div>
+      <div class="form-group"><label class="form-label">Тип</label>
+        <select class="select" id="no-type">
+          <option value="org">Организация</option>
+          <option value="dept">Отдел</option>
+          <option value="team">Команда</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Родитель</label>
+        <select class="select" id="no-parent"><option value="">— (корневой)</option></select>
+      </div>
+    </div>
+    <div class="slideover-footer">
+      <button class="btn btn-secondary btn-full" onclick="closeOrgSlide()">Отмена</button>
+      <button class="btn btn-primary btn-full" onclick="submitOrg()">Создать</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script src="api.js"></script>
+<script>
+
+let currentUser  = null;
+let currentPage  = '';
+let currentEditDate = null;
+let modalShiftType  = 'standard';
+let modalStart = '09:00';
+let modalEnd   = '18:00';
+let allShifts  = [];
+let allUsers   = [];
+let allOrgs    = [];
+
+const periods = [
+  { from:'2026-04-14', to:'2026-04-27', label:'14 апр — 27 апр' },
+  { from:'2026-04-28', to:'2026-05-11', label:'28 апр — 11 мая' },
+  { from:'2026-05-12', to:'2026-05-25', label:'12 мая — 25 мая' },
+  { from:'2026-05-26', to:'2026-06-08', label:'26 мая — 8 июн' }
+];
+let periodIdx = 0;
+let periodFrom = periods[0].from;
+let periodTo   = periods[0].to;
+
+const roleLabel = { admin:'Администратор', manager:'Руководитель', employee:'Сотрудник' };
+const typeLabel = { standard:'Стандарт', evening:'Вечер', night:'Ночь', off:'Выходной', vacation:'Отпуск', sick:'Больничный' };
+const weekDays  = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const monthsRu  = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+function mins(a, b) {
+  if (!a || !b) return 0;
+  const [sh,sm] = a.split(':').map(Number);
+  const [eh,em] = b.split(':').map(Number);
+  let d = (eh*60+em)-(sh*60+sm);
+  if (d < 0) d += 1440;
+  return d;
+}
+function fmtHours(a, b) {
+  const m = mins(a, b);
+  if (!m) return '—';
+  const h = Math.floor(m/60), mn = m%60;
+  return mn ? `${h} ч ${mn} м` : `${h} ч`;
+}
+function initials(name) {
+  const p = (name||'').trim().split(' ');
+  return p.length >= 2 ? (p[0][0]+p[1][0]).toUpperCase() : (name||'??').slice(0,2).toUpperCase();
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return `${d.getDate()} ${monthsRu[d.getMonth()]}`;
+}
+function fmtDateTime(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('ru-RU');
+}
+function getDayName(dateStr) {
+  const d   = new Date(dateStr);
+  const dow = d.getDay();
+  return weekDays[dow === 0 ? 6 : dow - 1];
+}
+function dateRange(from, to) {
+  const dates = [];
+  const cur   = new Date(from);
+  const end   = new Date(to);
+  while (cur <= end) {
+    dates.push(cur.toISOString().slice(0,10));
+    cur.setDate(cur.getDate()+1);
+  }
+  return dates;
+}
+function isWeekend(dateStr) {
+  const dow = new Date(dateStr).getDay();
+  return dow === 0 || dow === 6;
+}
+
+let _toastId = 0;
+function toast(title, msg, type = 'info') {
+  const icons = { success:'✅', warning:'⚠️', danger:'❌', info:'ℹ️' };
+  const id    = 'toast-' + (++_toastId);
+  const el    = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.id = id;
+  el.innerHTML = `
+    <div class="toast-icon">${icons[type]||'📌'}</div>
+    <div class="toast-text">
+      <div class="toast-title">${title}</div>
+      ${msg ? `<div class="toast-msg">${msg}</div>` : ''}
+    </div>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px;" onclick="rmToast('${id}')">✕</button>
+  `;
+  document.getElementById('toasts').appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => rmToast(id), 4000);
+}
+function rmToast(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('show');
+  setTimeout(() => el.remove(), 300);
+}
+
+const pageConfig = {
+  'my-schedule':   { title:'Мой график',        sub:'14 апреля — 27 апреля 2026', actions:true },
+  'my-shifts':     { title:'Мои смены',          sub:'История и предстоящие',      actions:false },
+  'team-schedule': { title:'График команды',      sub:'Управление сменами',         actions:true },
+  'plan-fact':     { title:'План / Факт',         sub:'Сравнение',                  actions:false },
+  'workload':      { title:'Нагрузка команды',    sub:'Тепловая карта',             actions:false },
+  'reports':       { title:'Отчёты',              sub:'Экспорт данных',             actions:false },
+  'notifications': { title:'Уведомления',         sub:'Системные сообщения',        actions:false },
+  'admin-users':   { title:'Сотрудники',          sub:'Управление аккаунтами',      actions:false },
+  'admin-orgs':    { title:'Организации',         sub:'Структура',                  actions:false },
+  'admin-roles':   { title:'Роли и доступ',       sub:'Ролевая модель',             actions:false },
+  'profile':       { title:'Профиль',             sub:'Настройки аккаунта',         actions:false }
+};
+
+function nav(pageId, menuEl) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('page-' + pageId);
+  if (el) { el.classList.remove('anim-fade-in'); void el.offsetWidth; el.classList.add('active','anim-fade-in'); }
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  if (menuEl) menuEl.classList.add('active');
+  const cfg = pageConfig[pageId] || {};
+  document.getElementById('tb-title').textContent = cfg.title || pageId;
+  document.getElementById('tb-sub').textContent   = cfg.sub   || '';
+  document.getElementById('btn-draft').style.display = cfg.actions && currentUser?.role !== 'admin' ? '' : 'none';
+  document.getElementById('btn-save').style.display  = cfg.actions && currentUser?.role !== 'admin' ? '' : 'none';
+  document.getElementById('period-sw').style.display = cfg.actions ? '' : 'none';
+  currentPage = pageId;
+  onPageLoad(pageId);
+}
+
+async function onPageLoad(p) {
+  try {
+    if (p === 'my-schedule')   await loadMySchedule();
+    if (p === 'my-shifts')     await loadMyShifts();
+    if (p === 'team-schedule') await loadTeamSchedule();
+    if (p === 'workload')      await loadWorkload();
+    if (p === 'plan-fact')     await loadPlanFact();
+    if (p === 'notifications') await loadNotifications();
+    if (p === 'admin-users')   await loadUsers();
+    if (p === 'admin-orgs')    await loadOrgs();
+    if (p === 'reports')       await initReports();
+    if (p === 'profile')       fillProfile();
+  } catch(e) { toast('Ошибка загрузки', e.message, 'danger'); }
+}
+
+function changePeriod(d) {
+  periodIdx = Math.max(0, Math.min(periods.length-1, periodIdx+d));
+  periodFrom = periods[periodIdx].from;
+  periodTo   = periods[periodIdx].to;
+  document.getElementById('period-lbl').textContent = periods[periodIdx].label;
+  if (currentPage === 'my-schedule')   loadMySchedule();
+  if (currentPage === 'team-schedule') loadTeamSchedule();
+  if (currentPage === 'workload')      loadWorkload();
+  if (currentPage === 'plan-fact')     loadPlanFact();
+}
+
+function selectRole(el, role) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const demos = { employee:{l:'ivanov@t2.ru',p:'employee123'}, manager:{l:'petrova@t2.ru',p:'manager123'}, admin:{l:'admin@t2.ru',p:'admin123'} };
+  if (demos[role]) {
+    document.getElementById('li').value = demos[role].l;
+    document.getElementById('lp').value = demos[role].p;
+  }
+}
+
+async function doLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-err');
+  btn.disabled = true;
+  btn.textContent = 'Вхожу...';
+  err.style.display = 'none';
+  try {
+    const user = await apiLogin(document.getElementById('li').value, document.getElementById('lp').value);
+    await applyUser(user);
+  } catch(ex) {
+    err.textContent = ex.message;
+    err.style.display = 'block';
+    document.getElementById('li').classList.add('error');
+    document.getElementById('lp').classList.add('error');
+    setTimeout(() => {
+      document.getElementById('li').classList.remove('error');
+      document.getElementById('lp').classList.remove('error');
+    }, 2000);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Войти в систему';
+  }
+}
+
+function quickLogin(l, p) {
+  document.getElementById('li').value = l;
+  document.getElementById('lp').value = p;
+  doLogin({ preventDefault:()=>{} });
+}
+
+async function applyUser(user) {
+  currentUser = user;
+  document.getElementById('sb-avatar').textContent = user.initials || initials(user.name);
+  document.getElementById('sb-name').textContent   = user.name;
+  document.getElementById('sb-role').textContent   = roleLabel[user.role] + (user.dept ? ' · '+user.dept : '');
+  ['employee','manager','admin'].forEach(r => {
+    document.getElementById('menu-'+r).style.display = r === user.role ? 'block' : 'none';
+  });
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  const firstPage = { employee:'my-schedule', manager:'team-schedule', admin:'admin-users' }[user.role];
+  const firstMenu = document.querySelector('#menu-'+user.role+' .sidebar-item');
+  nav(firstPage, firstMenu);
+
+  loadNotifBadge();
+
+  allOrgs = await apiGetOrgs().catch(() => []);
+
+  toast('Добро пожаловать!', user.name + ' · ' + roleLabel[user.role], 'success');
+}
+
+async function doLogout() {
+  await apiLogout();
+  currentUser = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  toast('До свидания!', '', 'info');
+}
+
+async function loadNotifBadge() {
+  try {
+    const { unread } = await apiGetNotifications();
+    ['notif-badge-emp','notif-badge-mgr'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent     = unread;
+      el.style.display   = unread > 0 ? '' : 'none';
+    });
+  } catch {}
+}
+
+async function loadMySchedule() {
+  allShifts = await apiGetShifts({ userId: currentUser.id, from: periodFrom, to: periodTo });
+  const dates = dateRange(periodFrom, periodTo);
+
+  const planned   = allShifts.filter(s => s.status === 'planned').length;
+  const confirmed = allShifts.filter(s => s.status === 'confirmed').length;
+  const totalH    = allShifts.reduce((acc,s) => acc + mins(s.start,s.end)/60, 0).toFixed(1);
+  const empty     = dates.filter(d => !allShifts.find(s => s.date === d) && !isWeekend(d)).length;
+
+  document.getElementById('emp-kpi').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Смен запланировано</div><div class="kpi-value kpi-accent">${planned}</div><div class="kpi-delta flat">из ${dates.length} дней</div></div>
+    <div class="kpi-card"><div class="kpi-label">Подтверждено</div><div class="kpi-value kpi-success">${confirmed}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Часов по плану</div><div class="kpi-value">${totalH}</div><div class="kpi-delta flat">норма 80 ч</div></div>
+    <div class="kpi-card"><div class="kpi-label">Не заполнено</div><div class="kpi-value kpi-warning">${empty}</div></div>
+  `;
+
+  const chunk1 = dates.slice(0, 7);
+  const chunk2 = dates.slice(7, 14);
+
+  document.getElementById('my-weeks').innerHTML =
+    renderWeek('Неделя 1', chunk1) +
+    renderWeek('Неделя 2', chunk2);
+}
+
+function renderWeek(label, dates) {
+  return `
+    <div class="card mb-16">
+      <div class="week-label">${label} — ${fmtDate(dates[0])} (${getDayName(dates[0])}) — ${fmtDate(dates[dates.length-1])} (${getDayName(dates[dates.length-1])})</div>
+      <div class="day-card-grid">
+        ${dates.map(d => renderDayCard(d)).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderDayCard(date) {
+  const shift   = allShifts.find(s => s.date === date);
+  const isWE    = isWeekend(date);
+  const dayNum  = new Date(date).getDate();
+  const dayName = getDayName(date);
+
+  let cls = 'day-card';
+  if (isWE) cls += ' weekend';
+  if (shift) {
+    if (shift.status === 'confirmed') cls += ' confirmed-day';
+    else if (shift.status === 'rejected') cls += ' rejected-day';
+    else cls += ' filled';
+  }
+
+  let shiftHtml = shift
+    ? `<div class="${shiftTagCls(shift.status)}">${shiftIcon(shift.type)} ${shift.type === 'off' || shift.type === 'vacation' || shift.type === 'sick' ? typeLabel[shift.type] : (shift.status === 'confirmed' ? 'Подтверждено' : 'Запланировано')}</div>
+       ${shift.start ? `<div class="day-shift mt-8">${shift.start} — ${shift.end}</div><div class="day-shift-time">${fmtHours(shift.start,shift.end)}</div>` : ''}`
+    : `<div style="font-size:12px;color:var(--text-disabled)">Не заполнено</div>`;
+
+  return `
+    <div class="${cls}" onclick="openDayModal('${date}','${dayName}')">
+      <div class="day-name">${dayName}</div>
+      <div class="day-number">${dayNum}</div>
+      <div style="margin-top:auto;">${shiftHtml}</div>
+    </div>
+  `;
+}
+
+function shiftTagCls(status) {
+  return `shift-tag ${status === 'confirmed' ? 'confirmed' : status === 'rejected' ? 'rejected' : 'planned'}`;
+}
+
+function shiftIcon(type) {
+  return { standard:'☀️', evening:'🌆', night:'🌙', off:'🏖', vacation:'✈️', sick:'🏥' }[type] || '📋';
+}
+
+async function loadMyShifts() {
+  const shifts = await apiGetShifts({ userId: currentUser.id, from: periodFrom, to: periodTo });
+  const tbody  = document.getElementById('my-shifts-tbody');
+  if (!shifts.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-title">Нет смен</div></div></td></tr>`;
+    return;
+  }
+
+  const statusBadge = { planned:'badge-accent', confirmed:'badge-success', rejected:'badge-danger' };
+
+  tbody.innerHTML = shifts.map(s => `
+    <tr>
+      <td><strong style="color:var(--text)">${fmtDate(s.date)}</strong></td>
+      <td class="t-muted">${getDayName(s.date)}</td>
+      <td><strong style="color:var(--text)">${s.start||'—'}</strong></td>
+      <td><strong style="color:var(--text)">${s.end||'—'}</strong></td>
+      <td>${fmtHours(s.start,s.end)}</td>
+      <td><span class="badge badge-neutral">${typeLabel[s.type]||s.type}</span></td>
+      <td><span class="badge ${statusBadge[s.status]||'badge-neutral'}">${s.status==='confirmed'?'Подтверждено':s.status==='rejected'?'Отклонено':'Запланировано'}</span></td>
+      <td>
+        ${s.status !== 'confirmed'
+          ? `<button class="btn btn-ghost btn-xs" onclick="openDayModal('${s.date}','${getDayName(s.date)}')">✏️</button>`
+          : '<span class="t-muted" style="font-size:12px;">Подтверждено</span>'
+        }
+      </td>
+    </tr>
+  `).join('');
+
+  const totalH = shifts.reduce((a,s) => a + mins(s.start,s.end)/60, 0).toFixed(1);
+  document.getElementById('my-shifts-kpi').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Итого часов</div><div class="kpi-value">${totalH}</div><div class="kpi-delta flat">норма: 80 ч</div></div>
+    <div class="kpi-card"><div class="kpi-label">Рабочих дней</div><div class="kpi-value">${shifts.filter(s=>s.type!=='off').length}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Подтверждено</div><div class="kpi-value kpi-success">${shifts.filter(s=>s.status==='confirmed').length}</div></div>
+  `;
+}
+
+async function loadTeamSchedule() {
+  try {
+    const stats  = await apiGetStats({ from: periodFrom, to: periodTo });
+    const users  = await apiGetUsers(currentUser.role === 'manager' ? { dept: currentUser.dept } : {});
+    allUsers     = users.filter(u => u.role === 'employee');
+    const shifts = await apiGetShifts({ from: periodFrom, to: periodTo });
+
+    document.getElementById('team-kpi').innerHTML = `
+      <div class="kpi-card"><div class="kpi-label">Сотрудников</div><div class="kpi-value">${stats.totalEmployees}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Заполнили</div><div class="kpi-value kpi-success">${stats.filledSchedule}</div><div class="kpi-delta up">↑ ${stats.totalEmployees ? Math.round(stats.filledSchedule/stats.totalEmployees*100) : 0}%</div></div>
+      <div class="kpi-card"><div class="kpi-label">Не заполнили</div><div class="kpi-value kpi-warning">${stats.notFilledSchedule}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Подтверждено</div><div class="kpi-value kpi-accent">${stats.confirmedShifts}</div></div>
+    `;
+
+    const depts = [...new Set(allUsers.map(u => u.dept).filter(Boolean))];
+    const df    = document.getElementById('team-dept-filter');
+    df.innerHTML = '<option value="">Все отделы</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+
+    renderTeamTable(allUsers, shifts);
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+function renderTeamTable(users, shifts) {
+  const tbody = document.getElementById('team-tbody');
+  tbody.innerHTML = users.map(u => {
+    const us     = shifts.filter(s => s.userId === u.id);
+    const hours  = us.reduce((a,s) => a + mins(s.start,s.end)/60, 0).toFixed(1);
+    const pct    = Math.min(100, Math.round(Number(hours)/80*100));
+    const color  = pct > 100 ? 'var(--danger)' : pct > 80 ? 'var(--warning)' : 'var(--success)';
+    const pending = us.filter(s => s.status === 'planned');
+    const badge  = us.length === 0
+      ? '<span class="badge badge-neutral">Не заполнен</span>'
+      : pending.length > 0
+        ? '<span class="badge badge-accent">На согласовании</span>'
+        : '<span class="badge badge-success">Подтверждено</span>';
+
+    return `
+      <tr>
+        <td>
+          <div class="table-avatar">
+            <div class="table-avatar-img">${u.initials||initials(u.name)}</div>
+            <div><div class="table-name">${u.name}</div></div>
+          </div>
+        </td>
+        <td class="t-muted">${u.dept||'—'}</td>
+        <td><strong style="color:var(--text)">${us.filter(s=>s.type!=='off').length}</strong></td>
+        <td><strong style="color:var(--text)">${hours}</strong></td>
+        <td>${badge}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;min-width:120px;">
+            <div class="workload-bar" style="flex:1;">
+              <div class="workload-fill" style="width:${pct}%;background:${color};"></div>
+            </div>
+            <span style="font-size:12px;font-weight:700;color:${color};width:36px;">${hours}ч</span>
+          </div>
+        </td>
+        <td>
+          <div class="flex gap-6">
+            ${pending.map(s => `
+              <button class="btn btn-success btn-xs" onclick="confirmShift(${s.id})">✅</button>
+              <button class="btn btn-danger btn-xs" onclick="rejectShift(${s.id})">↩</button>
+            `).join('')}
+            ${pending.length === 0 ? '<span class="t-muted" style="font-size:12px;">—</span>' : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('') || `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-title">Нет сотрудников</div></div></td></tr>`;
+}
+
+function filterTeamTable() {
+  const q    = document.getElementById('team-search').value.toLowerCase();
+  const dept = document.getElementById('team-dept-filter').value;
+  let filtered = allUsers;
+  if (q)    filtered = filtered.filter(u => u.name.toLowerCase().includes(q));
+  if (dept) filtered = filtered.filter(u => u.dept === dept);
+  apiGetShifts({ from: periodFrom, to: periodTo }).then(shifts => renderTeamTable(filtered, shifts));
+}
+
+async function confirmShift(id) {
+  try {
+    await apiConfirmShift(id);
+    toast('Подтверждено', '', 'success');
+    loadTeamSchedule();
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+async function rejectShift(id) {
+  const comment = prompt('Причина отклонения (необязательно):') || '';
+  try {
+    await apiRejectShift(id, comment);
+    toast('Отклонено', '', 'warning');
+    loadTeamSchedule();
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+async function confirmAllShifts() {
+  try {
+    const shifts = await apiGetShifts({ from: periodFrom, to: periodTo, status: 'planned' });
+    await Promise.all(shifts.map(s => apiConfirmShift(s.id)));
+    toast('Все подтверждены', `${shifts.length} смен`, 'success');
+    loadTeamSchedule();
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+async function loadWorkload() {
+  const users  = await apiGetUsers(currentUser.role === 'manager' ? { dept: currentUser.dept } : {});
+  const ulist  = users.filter(u => u.role === 'employee');
+  const shifts = await apiGetShifts({ from: periodFrom, to: periodTo });
+  const dates  = dateRange(periodFrom, periodTo);
+
+  const thead = `<thead><tr><th style="text-align:left;padding-right:12px;">Сотрудник</th>${dates.map(d=>`<th>${new Date(d).getDate()}<br><span style="font-size:10px;color:var(--text-muted)">${getDayName(d)}</span></th>`).join('')}</tr></thead>`;
+  const tbody = `<tbody>${ulist.map(u => {
+    const cells = dates.map(d => {
+      const s = shifts.find(x => x.userId === u.id && x.date === d);
+      let cls = 'hc-empty';
+      if (s) {
+        if (s.type === 'off' || s.type === 'vacation' || s.type === 'sick') cls = 'hc-off';
+        else if (s.status === 'confirmed') cls = 'hc-confirmed';
+        else if (s.status === 'rejected')  cls = 'hc-rejected';
+        else cls = 'hc-planned';
+      }
+      return `<td><div class="heatmap-cell ${cls}" title="${u.name} · ${d}${s?' · '+typeLabel[s.type]:''}"></div></td>`;
+    }).join('');
+    return `<tr><td style="text-align:left;padding-right:12px;font-size:13px;font-weight:600;color:var(--text-soft);white-space:nowrap;">${u.name}</td>${cells}</tr>`;
+  }).join('')}</tbody>`;
+  document.getElementById('heatmap-table').innerHTML = thead + tbody;
+
+  document.getElementById('workload-bars').innerHTML = ulist.map(u => {
+    const h   = shifts.filter(s => s.userId === u.id && s.type !== 'off').reduce((a,s) => a + mins(s.start,s.end)/60, 0).toFixed(1);
+    const pct = Math.min(100, Math.round(Number(h)/80*100));
+    const clr = Number(h) > 96 ? 'var(--danger)' : Number(h) > 80 ? 'var(--warning)' : 'var(--success)';
+    return `
+      <div class="workload-row">
+        <div class="workload-name">${u.name}</div>
+        <div class="workload-bar"><div class="workload-fill" style="width:${pct}%;background:${clr};"></div></div>
+        <div class="workload-val" style="color:${clr};">${h}ч</div>
+      </div>`;
+  }).join('');
+}
+
+async function loadPlanFact() {
+  const { rows, summary } = await apiGetPlanFact({ from: periodFrom, to: periodTo });
+
+  document.getElementById('pf-kpi').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Всего записей</div><div class="kpi-value">${summary.total}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Совпадают</div><div class="kpi-value kpi-success">${summary.matched}</div><div class="kpi-delta up">±15 мин</div></div>
+    <div class="kpi-card"><div class="kpi-label">Отклонений</div><div class="kpi-value kpi-warning">${summary.deviated}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Нет факта</div><div class="kpi-value kpi-danger">${summary.critical}</div></div>
+  `;
+
+  document.getElementById('pf-tbody').innerHTML = rows.map(r => {
+    const diff  = r.diffMins;
+    const dCls  = Math.abs(diff) <= 15 ? 'diff-ok' : diff > 0 ? 'diff-pos' : 'diff-neg';
+    const dTxt  = diff === 0 ? '0' : (diff > 0 ? '+' : '') + (diff/60).toFixed(2) + 'ч';
+    const badge = r.status === 'confirmed' ? 'badge-success' : r.status === 'rejected' ? 'badge-danger' : 'badge-accent';
+    return `
+      <tr>
+        <td><strong style="color:var(--text)">${fmtDate(r.date)}</strong></td>
+        <td><div class="table-avatar"><div class="table-avatar-img">${initials(r.userName)}</div><div class="table-name">${r.userName}</div></div></td>
+        <td class="t-muted">${r.userDept}</td>
+        <td>${r.planStart||'—'}</td><td>${r.planEnd||'—'}</td>
+        <td style="color:${r.factStart?'var(--success)':'var(--danger)'}">${r.factStart||'—'}</td>
+        <td style="color:${r.factEnd?'var(--success)':'var(--danger)'}">${r.factEnd||'—'}</td>
+        <td class="${dCls}">${dTxt}</td>
+        <td><span class="badge ${badge}">${r.status==='confirmed'?'ОК':r.status==='rejected'?'Откл.':'План'}</span></td>
+      </tr>`;
+  }).join('') || `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-title">Нет данных</div></div></td></tr>`;
+}
+
+async function loadNotifications() {
+  const { notifications: list } = await apiGetNotifications();
+  const icons = { confirmed:'✅', rejected:'↩️', welcome:'👋', reminder:'🔔' };
+  document.getElementById('notif-list').innerHTML = list.length
+    ? list.map(n => `
+        <div class="notif-item ${n.read?'':'unread'}" onclick="readNotif(${n.id},this)">
+          ${!n.read ? '<div class="notif-dot"></div>' : '<div style="width:8px;"></div>'}
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;color:var(--text);">${icons[n.type]||'📌'} ${n.title}</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">${n.message}</div>
+            <div style="font-size:11px;color:var(--text-disabled);margin-top:4px;">${fmtDateTime(n.createdAt)}</div>
+          </div>
+          <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();deleteNotif(${n.id},this)">✕</button>
+        </div>`)
+        .join('')
+    : '<div class="empty-state"><div class="empty-state-icon">🔔</div><div class="empty-state-title">Нет уведомлений</div></div>';
+}
+
+async function readNotif(id, el) {
+  el.classList.remove('unread');
+  const dot = el.querySelector('.notif-dot');
+  if (dot) dot.remove();
+  await apiReadNotif(id).catch(()=>{});
+  loadNotifBadge();
+}
+
+async function deleteNotif(id, btn) {
+  btn.closest('.notif-item').remove();
+  await apiDeleteNotif(id).catch(()=>{});
+  loadNotifBadge();
+}
+
+async function readAllNotifs() {
+  await apiReadAllNotifs();
+  toast('Готово', 'Все уведомления прочитаны', 'success');
+  loadNotifications();
+  loadNotifBadge();
+}
+
+async function initReports() {
+  const orgs = await apiGetOrgs();
+  const depts = orgs.filter(o => o.type === 'dept').map(o => o.name);
+  document.getElementById('rep-dept').innerHTML = '<option value="">Все</option>' + depts.map(d=>`<option>${d}</option>`).join('');
+  document.getElementById('rep-from').value = periodFrom;
+  document.getElementById('rep-to').value   = periodTo;
+  await loadReportPreview();
+}
+
+async function loadReportPreview() {
+  const from = document.getElementById('rep-from').value || periodFrom;
+  const to   = document.getElementById('rep-to').value   || periodTo;
+  const dept = document.getElementById('rep-dept').value;
+  const params = { from, to };
+  if (dept) params.dept = dept;
+  const { rows } = await apiGetPlanFact(params);
+
+  document.getElementById('rep-count').textContent = rows.length + ' записей';
+  document.getElementById('rep-tbody').innerHTML = rows.map(r => `
+    <tr>
+      <td>${fmtDate(r.date)}</td>
+      <td>${r.userName}</td>
+      <td class="t-muted">${r.userDept}</td>
+      <td>${r.planStart||'—'}</td><td>${r.planEnd||'—'}</td>
+      <td>${r.factStart||'—'}</td><td>${r.factEnd||'—'}</td>
+      <td><strong style="color:var(--text)">${r.planHours}</strong></td>
+      <td><span class="badge ${r.status==='confirmed'?'badge-success':r.status==='rejected'?'badge-danger':'badge-accent'}">${r.status==='confirmed'?'ОК':r.status==='rejected'?'Откл.':'План'}</span></td>
+    </tr>`).join('')
+    || `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">📄</div><div class="empty-state-title">Нет данных</div></div></td></tr>`;
+}
+
+function doExportCSV() {
+  const from = document.getElementById('rep-from').value || periodFrom;
+  const to   = document.getElementById('rep-to').value   || periodTo;
+  const dept = document.getElementById('rep-dept').value;
+  const p    = { from, to };
+  if (dept) p.dept = dept;
+  apiExportCSV(p).then(() => toast('Экспорт', 'CSV файл скачан', 'success')).catch(e => toast('Ошибка', e.message, 'danger'));
+}
+
+async function loadUsers() {
+  const users = await apiGetUsers();
+  allUsers    = users;
+  renderUsersTable(users);
+}
+
+function renderUsersTable(users) {
+  const roleBadge = { admin:'badge-danger', manager:'badge-warning', employee:'badge-neutral' };
+  document.getElementById('users-tbody').innerHTML = users.map(u => `
+    <tr>
+      <td>
+        <div class="table-avatar">
+          <div class="table-avatar-img">${u.initials||initials(u.name)}</div>
+          <div><div class="table-name">${u.name}</div><div class="table-desc">${fmtDate(u.createdAt)}</div></div>
+        </div>
+      </td>
+      <td class="t-muted">${u.login}</td>
+      <td><span class="badge ${roleBadge[u.role]||'badge-neutral'}">${roleLabel[u.role]||u.role}</span></td>
+      <td class="t-muted">${u.dept||'—'}</td>
+      <td class="t-muted">${fmtDate(u.createdAt)}</td>
+      <td>${u.active ? '<span class="badge badge-success">Активен</span>' : '<span class="badge badge-danger">Заблокирован</span>'}</td>
+      <td>
+        <div class="flex gap-6">
+          <button class="btn btn-ghost btn-xs" onclick="toggleUser(${u.id})">${u.active?'🔒':'🔓'}</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteUser(${u.id})">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('')
+    || `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-title">Нет пользователей</div></div></td></tr>`;
+}
+
+function filterUsersTable() {
+  const q    = document.getElementById('usr-search').value.toLowerCase();
+  const role = document.getElementById('usr-role-filter').value;
+  let f = allUsers;
+  if (q)    f = f.filter(u => u.name.toLowerCase().includes(q) || u.login.toLowerCase().includes(q));
+  if (role) f = f.filter(u => u.role === role);
+  renderUsersTable(f);
+}
+
+async function toggleUser(id) {
+  try {
+    const active = await apiToggleUser(id);
+    toast(active ? 'Активирован' : 'Заблокирован', '', active ? 'success' : 'warning');
+    loadUsers();
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+async function deleteUser(id) {
+  if (!confirm('Удалить пользователя?')) return;
+  try {
+    await apiDeleteUser(id);
+    toast('Удалено', '', 'success');
+    loadUsers();
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+function openUserSlide() {
+  const depts = allOrgs.filter(o => o.type === 'dept').map(o => o.name);
+  const orgs  = allOrgs.filter(o => o.type === 'org');
+  document.getElementById('nu-dept').innerHTML = '<option value="">—</option>' + depts.map(d=>`<option>${d}</option>`).join('');
+  document.getElementById('nu-org').innerHTML  = '<option value="">—</option>' + orgs.map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+  document.getElementById('nu-name').value = '';
+  document.getElementById('nu-login').value = '';
+  document.getElementById('nu-pass').value = '';
+  document.getElementById('nu-preview').style.display = 'none';
+  const overlay = document.getElementById('user-overlay');
+  const slide   = document.getElementById('user-slide');
+  overlay.classList.add('open');
+  slide.style.transform = 'translateX(0)';
+}
+function closeUserSlide(e) {
+  if (e && e.target !== document.getElementById('user-overlay')) return;
+  const overlay = document.getElementById('user-overlay');
+  const slide   = document.getElementById('user-slide');
+  overlay.classList.remove('open');
+  slide.style.transform = 'translateX(100%)';
+}
+
+function previewUser() {
+  const name = document.getElementById('nu-name').value.trim();
+  const role = document.getElementById('nu-role').value;
+  const dept = document.getElementById('nu-dept').value;
+  const pr   = document.getElementById('nu-preview');
+  if (!name) { pr.style.display = 'none'; return; }
+  const ini = initials(name);
+  pr.style.display = '';
+  document.getElementById('nup-av').textContent   = ini;
+  document.getElementById('nup-name').textContent = name;
+  document.getElementById('nup-role').textContent = roleLabel[role] + (dept ? ' · '+dept : '');
+}
+
+async function submitUser() {
+  try {
+    const orgId = document.getElementById('nu-org').value;
+    const user  = await apiCreateUser({
+      name:     document.getElementById('nu-name').value.trim(),
+      login:    document.getElementById('nu-login').value.trim(),
+      password: document.getElementById('nu-pass').value,
+      role:     document.getElementById('nu-role').value,
+      dept:     document.getElementById('nu-dept').value,
+      orgId:    orgId ? Number(orgId) : null
+    });
+    toast('Аккаунт создан!', user.name + ' · ' + user.login, 'success');
+    closeUserSlide();
+    loadUsers();
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+async function loadOrgs() {
+  const orgs = await apiGetOrgs();
+  allOrgs    = orgs;
+  const typeLabel2 = { org:'Организация', dept:'Отдел', team:'Команда' };
+  const typeBadge  = { org:'badge-info', dept:'badge-accent', team:'badge-neutral' };
+  document.getElementById('orgs-tbody').innerHTML = orgs.map(o => {
+    const parent = orgs.find(x => x.id === o.parentId);
+    const indent = parent ? (orgs.find(x => x.id === parent.parentId) ? 48 : 24) : 0;
+    return `
+      <tr>
+        <td style="padding-left:${16+indent}px;">
+          <div class="flex items-center gap-8">
+            <span style="font-size:${18-indent/10}px;">${o.type==='org'?'🏢':o.type==='dept'?'📁':'👥'}</span>
+            <strong style="color:var(--text)">${o.name}</strong>
+            ${parent ? `<span class="t-muted" style="font-size:12px;">↳ ${parent.name}</span>` : ''}
+          </div>
+        </td>
+        <td><span class="badge ${typeBadge[o.type]||'badge-neutral'}">${typeLabel2[o.type]||o.type}</span></td>
+        <td>—</td>
+        <td>
+          <div class="flex gap-6">
+            <button class="btn btn-danger btn-xs" onclick="deleteOrg(${o.id})">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function openOrgSlide() {
+  const orgs = allOrgs;
+  document.getElementById('no-parent').innerHTML =
+    '<option value="">— (корневой)</option>' +
+    orgs.map(o => `<option value="${o.id}">${o.name}</option>`).join('');
+  document.getElementById('no-name').value = '';
+  const overlay = document.getElementById('org-overlay');
+  const slide   = document.getElementById('org-slide');
+  overlay.classList.add('open');
+  slide.style.transform = 'translateX(0)';
+}
+function closeOrgSlide(e) {
+  if (e && e.target !== document.getElementById('org-overlay')) return;
+  const overlay = document.getElementById('org-overlay');
+  const slide   = document.getElementById('org-slide');
+  overlay.classList.remove('open');
+  slide.style.transform = 'translateX(100%)';
+}
+async function submitOrg() {
+  try {
+    const parentId = document.getElementById('no-parent').value;
+    await apiCreateOrg({
+      name:     document.getElementById('no-name').value.trim(),
+      type:     document.getElementById('no-type').value,
+      parentId: parentId ? Number(parentId) : null
+    });
+    toast('Создано', '', 'success');
+    closeOrgSlide();
+    loadOrgs();
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+async function deleteOrg(id) {
+  if (!confirm('Удалить?')) return;
+  try {
+    await apiDeleteOrg(id);
+    toast('Удалено', '', 'success');
+    loadOrgs();
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+function fillProfile() {
+  if (!currentUser) return;
+  document.getElementById('prof-name').value         = currentUser.name || '';
+  document.getElementById('prof-login').value        = currentUser.login || '';
+  document.getElementById('prof-dept').value         = currentUser.dept  || '—';
+  document.getElementById('prof-role').value         = roleLabel[currentUser.role] || '';
+  document.getElementById('prof-avatar').textContent = currentUser.initials || initials(currentUser.name);
+  document.getElementById('prof-display-name').textContent = currentUser.name;
+  document.getElementById('prof-display-role').textContent = roleLabel[currentUser.role] + (currentUser.dept ? ' · '+currentUser.dept : '');
+}
+
+async function saveProfile() {
+  try {
+    const name = document.getElementById('prof-name').value.trim();
+    const user = await apiUpdateUser(currentUser.id, { name });
+    currentUser = { ...currentUser, ...user };
+    setSession(currentUser);
+    document.getElementById('sb-name').textContent   = currentUser.name;
+    document.getElementById('sb-avatar').textContent = currentUser.initials || initials(currentUser.name);
+    fillProfile();
+    toast('Сохранено', 'Профиль обновлён', 'success');
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+async function changePass() {
+  const o = document.getElementById('pw-old').value;
+  const n = document.getElementById('pw-new').value;
+  if (!o || !n) { toast('Заполните оба поля', '', 'warning'); return; }
+  try {
+    await apiChangePassword(currentUser.id, o, n);
+    document.getElementById('pw-old').value = '';
+    document.getElementById('pw-new').value = '';
+    toast('Пароль изменён', '', 'success');
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+function openDayModal(date, day) {
+  currentEditDate = date || null;
+  const title = date ? `${day||getDayName(date)}, ${fmtDate(date)}` : 'Смена';
+  document.getElementById('day-modal-title').textContent = title;
+
+  const existing = allShifts.find(s => s.date === date);
+  if (existing) {
+    document.getElementById('ms').value  = existing.start || '09:00';
+    document.getElementById('me').value  = existing.end   || '18:00';
+    document.getElementById('mc').value  = existing.comment || '';
+    modalShiftType = existing.type;
+    if (existing.start) {
+      document.getElementById('modal-time-row').style.display = '';
+    } else {
+      document.getElementById('modal-time-row').style.display = 'none';
+    }
+  } else {
+    document.getElementById('ms').value = '09:00';
+    document.getElementById('me').value = '18:00';
+    document.getElementById('mc').value = '';
+    document.getElementById('modal-time-row').style.display = '';
+    modalShiftType = 'standard';
+  }
+
+  document.querySelectorAll('#modal-types .quick-shift-btn').forEach(b => b.classList.remove('active'));
+  const activeBtn = document.querySelector(`#modal-types .quick-shift-btn[onclick*="${modalShiftType}"]`);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  calcDur();
+  document.getElementById('day-overlay').classList.add('open');
+}
+
+function closeDayModal(e) {
+  if (e && e.target !== document.getElementById('day-overlay')) return;
+  document.getElementById('day-overlay').classList.remove('open');
+}
+
+function mtype(el, type, start, end) {
+  document.querySelectorAll('#modal-types .quick-shift-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  modalShiftType = type;
+  const timeRow  = document.getElementById('modal-time-row');
+  if (start) {
+    timeRow.style.display = '';
+    document.getElementById('ms').value = start;
+    document.getElementById('me').value = end;
+    calcDur();
+  } else {
+    timeRow.style.display = 'none';
+    document.getElementById('mdur').textContent = typeLabel[type] || type;
+  }
+}
+
+function calcDur() {
+  const s = document.getElementById('ms').value;
+  const e = document.getElementById('me').value;
+  const m = mins(s, e);
+  const h = Math.floor(m/60), mn = m%60;
+  document.getElementById('mdur').textContent = m ? (mn ? `${h} ч ${mn} мин` : `${h} часов`) : '—';
+}
+
+async function saveDayShift() {
+  if (!currentEditDate) { closeDayModal(); return; }
+  try {
+    const shift = await apiUpsertShift({
+      userId:  currentUser.id,
+      date:    currentEditDate,
+      type:    modalShiftType,
+      start:   document.getElementById('modal-time-row').style.display !== 'none' ? document.getElementById('ms').value : null,
+      end:     document.getElementById('modal-time-row').style.display !== 'none' ? document.getElementById('me').value : null,
+      comment: document.getElementById('mc').value
+    });
+    closeDayModal();
+    toast('Смена сохранена', fmtDate(shift.date) + ' · ' + typeLabel[shift.type], 'success');
+    const idx = allShifts.findIndex(s => s.date === shift.date);
+    if (idx >= 0) allShifts[idx] = shift; else allShifts.push(shift);
+    document.getElementById('my-weeks').innerHTML =
+      renderWeek('Неделя 1', dateRange(periodFrom, periodTo).slice(0,7)) +
+      renderWeek('Неделя 2', dateRange(periodFrom, periodTo).slice(7,14));
+    loadMySchedule();
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+async function clearShift() {
+  if (!currentEditDate) return;
+  const shift = allShifts.find(s => s.date === currentEditDate);
+  if (!shift) { closeDayModal(); return; }
+  if (shift.status === 'confirmed') { toast('Нельзя', 'Подтверждённая смена не удаляется', 'warning'); return; }
+  try {
+    await apiDeleteShift(shift.id);
+    closeDayModal();
+    toast('Удалено', fmtDate(currentEditDate), 'info');
+    allShifts = allShifts.filter(s => s.date !== currentEditDate);
+    loadMySchedule();
+  } catch(e) { toast('Ошибка', e.message, 'danger'); }
+}
+
+function qshift(el, type, start, end) {
+  document.querySelectorAll('.quick-shifts .quick-shift-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (currentEditDate) {
+    apiUpsertShift({ userId:currentUser.id, date:currentEditDate, type, start, end })
+      .then(s => {
+        toast('Смена обновлена', fmtDate(s.date), 'success');
+        const idx = allShifts.findIndex(x => x.date === s.date);
+        if (idx >= 0) allShifts[idx] = s; else allShifts.push(s);
+        loadMySchedule();
+      })
+      .catch(e => toast('Ошибка', e.message, 'danger'));
+  }
+}
+
+function saveDraft()      { toast('Черновик сохранён', 'Продолжите позже', 'info'); }
+function saveSchedule()   { toast('Сохранено', 'График записан', 'success'); }
+function submitSchedule() { toast('Отправлено', 'Руководитель получит уведомление', 'success'); }
+function switchTab(el)    { el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); }
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const session = getSession();
+  if (session) {
+    try {
+      const user = await apiGetMe();
+      await applyUser(user);
+    } catch {
+      clearSession();
+    }
+  }
+});
+</script>
+</body>
+</html>

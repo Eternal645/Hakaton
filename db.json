@@ -1,0 +1,249 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "login": "admin@t2.ru",
+      "password": "admin123",
+      "role": "admin",
+      "name": "Администратов Алексей",
+      "dept": null,
+      "orgId": 1,
+      "active": true,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "login": "petrova@t2.ru",
+      "password": "manager123",
+      "role": "manager",
+      "name": "Петрова Мария",
+      "dept": "Отдел продаж",
+      "orgId": 1,
+      "active": true,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "login": "ivanov@t2.ru",
+      "password": "employee123",
+      "role": "employee",
+      "name": "Иванов Иван",
+      "dept": "Отдел продаж",
+      "orgId": 1,
+      "active": true,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "login": "alekseeva@t2.ru",
+      "password": "employee123",
+      "role": "employee",
+      "name": "Алексеева Кира",
+      "dept": "Поддержка",
+      "orgId": 1,
+      "active": true,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "login": "morozov@t2.ru",
+      "password": "employee123",
+      "role": "employee",
+      "name": "Морозов Пётр",
+      "dept": "Разработка",
+      "orgId": 1,
+      "active": true,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "login": "sva12k",
+      "password": "turbovitalik",
+      "role": "manager",
+      "name": "Спирин Виталий Алексеевич",
+      "dept": "Разработка",
+      "orgId": 1,
+      "active": true,
+      "createdAt": "2026-04-10T05:23:11.907Z"
+    },
+    {
+      "id": 7,
+      "login": "bagaevs754@gmail.com",
+      "password": "Aleksandr1337",
+      "role": "admin",
+      "name": "Багаев Александр Дмитриевич",
+      "dept": "Разработка",
+      "orgId": 1,
+      "active": true,
+      "createdAt": "2026-04-10T05:30:19.807Z"
+    }
+  ],
+  "organizations": [
+    {
+      "id": 1,
+      "name": "T2 — Главный офис",
+      "type": "org",
+      "parentId": null,
+      "managerId": 1
+    },
+    {
+      "id": 2,
+      "name": "T2 — Регион Сибирь",
+      "type": "org",
+      "parentId": null,
+      "managerId": null
+    },
+    {
+      "id": 3,
+      "name": "Отдел продаж",
+      "type": "dept",
+      "parentId": 1,
+      "managerId": 2
+    },
+    {
+      "id": 4,
+      "name": "Поддержка",
+      "type": "dept",
+      "parentId": 1,
+      "managerId": null
+    },
+    {
+      "id": 5,
+      "name": "Разработка",
+      "type": "dept",
+      "parentId": 1,
+      "managerId": null
+    },
+    {
+      "id": 6,
+      "name": "Команда B2B",
+      "type": "team",
+      "parentId": 3,
+      "managerId": null
+    }
+  ],
+  "shifts": [
+    {
+      "id": 1,
+      "userId": 3,
+      "date": "2026-04-14",
+      "type": "standard",
+      "start": "09:00",
+      "end": "18:00",
+      "status": "confirmed",
+      "factStart": "09:03",
+      "factEnd": "18:02",
+      "comment": "",
+      "confirmedBy": 2,
+      "confirmedAt": "2026-04-13T12:00:00.000Z",
+      "updatedAt": "2026-04-14T18:05:00.000Z"
+    },
+    {
+      "id": 2,
+      "userId": 3,
+      "date": "2026-04-15",
+      "type": "standard",
+      "start": "08:00",
+      "end": "19:00",
+      "status": "planned",
+      "factStart": "09:45",
+      "factEnd": "18:00",
+      "comment": "",
+      "confirmedBy": null,
+      "confirmedAt": null,
+      "updatedAt": "2026-04-10T06:05:05.485Z"
+    },
+    {
+      "id": 3,
+      "userId": 4,
+      "date": "2026-04-14",
+      "type": "standard",
+      "start": "10:00",
+      "end": "19:00",
+      "status": "confirmed",
+      "factStart": "10:00",
+      "factEnd": "19:05",
+      "comment": "",
+      "confirmedBy": 2,
+      "confirmedAt": "2026-04-13T12:00:00.000Z",
+      "updatedAt": "2026-04-14T19:08:00.000Z"
+    },
+    {
+      "id": 4,
+      "userId": 5,
+      "date": "2026-04-14",
+      "type": "standard",
+      "start": "09:00",
+      "end": "18:00",
+      "status": "confirmed",
+      "factStart": null,
+      "factEnd": null,
+      "comment": "",
+      "confirmedBy": 6,
+      "confirmedAt": "2026-04-10T05:24:53.711Z",
+      "updatedAt": "2026-04-14T00:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "userId": 3,
+      "date": "2026-04-16",
+      "type": "standard",
+      "start": "09:00",
+      "end": "18:00",
+      "status": "planned",
+      "factStart": null,
+      "factEnd": null,
+      "comment": "",
+      "confirmedBy": null,
+      "confirmedAt": null,
+      "updatedAt": "2026-04-10T06:14:07.467Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1,
+      "userId": 3,
+      "type": "confirmed",
+      "title": "График подтверждён",
+      "message": "Руководитель подтвердил вашу смену на 14 апреля",
+      "read": false,
+      "createdAt": "2026-04-13T12:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "userId": 3,
+      "type": "reminder",
+      "title": "Напоминание о графике",
+      "message": "Заполните смены на 23–25 апреля до пятницы",
+      "read": false,
+      "createdAt": "2026-04-10T09:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "userId": 6,
+      "type": "welcome",
+      "title": "Добро пожаловать в T2.beta!",
+      "message": "Ваш аккаунт создан. Войдите и заполните график.",
+      "read": false,
+      "createdAt": "2026-04-10T05:23:11.918Z"
+    },
+    {
+      "id": 4,
+      "userId": 5,
+      "type": "confirmed",
+      "title": "Смена подтверждена",
+      "message": "Смена 2026-04-14 подтверждена руководителем",
+      "read": false,
+      "createdAt": "2026-04-10T05:24:53.718Z"
+    },
+    {
+      "id": 5,
+      "userId": 7,
+      "type": "welcome",
+      "title": "Добро пожаловать в T2.beta!",
+      "message": "Ваш аккаунт создан. Войдите и заполните график.",
+      "read": false,
+      "createdAt": "2026-04-10T05:30:19.810Z"
+    }
+  ]
+}
